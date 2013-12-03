@@ -40,6 +40,7 @@
     
     <xsl:template name="date:timestamp">
         <xsl:param name="date-time"/>
+       
         <xsl:variable name="compact"
             select="
             normalize-space(
@@ -98,7 +99,36 @@
     </xsl:template>
     
     <xsl:template name="date:date-time">
-        <xsl:param name="timestamp"/>
+        <xsl:param name="utctimestamp"/><!-- UTC -->
+        <xsl:param name="shifttzinminutes"/>
+        <xsl:param name="is_include_milliseconds" select="true()"/>
+        <xsl:variable name="timestamp" select="$utctimestamp + $shifttzinminutes*60000"/>
+        <xsl:variable name="timezonepart">
+            <xsl:choose>
+                <xsl:when test="$shifttzinminutes">
+                    <xsl:variable name="shifttzsign">
+                        <xsl:choose>
+                            <xsl:when test="$shifttzinminutes > 0">
+                                <xsl:value-of select="'+'"/>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:value-of select="'-'"/>
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:variable>
+                    <xsl:variable name="shifttzhrsabs">
+                        <xsl:variable name="vNum" select="$shifttzinminutes div 60"/>
+                        <xsl:value-of select="$vNum*($vNum >=0) - $vNum*($vNum &lt; 0)"/>
+                    </xsl:variable>
+                    <xsl:variable name="shifttzminabs"><!-- abs number of minues -->
+                        <xsl:variable name="vNum" select="$shifttzinminutes mod 60"/>
+                        <xsl:value-of select="$vNum*($vNum >=0) - $vNum*($vNum &lt; 0)"/>
+                    </xsl:variable>
+                    <xsl:value-of select="concat($shifttzsign,format-number($shifttzhrsabs, '00'),':',format-number($shifttzminabs, '00'))"/>
+                </xsl:when>
+                <xsl:otherwise><xsl:value-of select="'Z'"/></xsl:otherwise>
+            </xsl:choose>
+        </xsl:variable>
         <xsl:if test="not(format-number($timestamp,0)='NaN')">
             <xsl:variable name="days"
                 select="$timestamp div (24*3600000)"/>
@@ -125,6 +155,19 @@
                 select="floor($time div 60-$hours*60)"/>
             <xsl:variable name="sec"
                 select="floor($time -$hours*3600-$min*60)"/>
+            <xsl:variable name="millisecondspart">
+                <xsl:choose>
+                    <xsl:when test="$is_include_milliseconds">
+                        <xsl:value-of select="'.'"/>
+                        <xsl:value-of select="format-number(
+                            1000*($time
+                            -$hours*3600
+                            -$min*60-$sec),
+                            '000')"/>
+                    </xsl:when>
+                    <xsl:otherwise></xsl:otherwise>
+                </xsl:choose>
+            </xsl:variable>
             <xsl:value-of select="
                 concat(
                 format-number($year,'0000'),'-',
@@ -138,12 +181,8 @@
                 '00'),'T',
                 format-number($hours,'00'),':',
                 format-number($min,'00'),':',
-                format-number($sec,'00'),'.',
-                format-number(
-                1000*($time
-                -$hours*3600
-                -$min*60-$sec),
-                '000'),'Z')"/>
+                format-number($sec,'00'),
+                $millisecondspart,$timezonepart)"/>            
         </xsl:if>
     </xsl:template>
 </xsl:stylesheet>
