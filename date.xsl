@@ -97,12 +97,26 @@
             concat('0.',substring-after($time,'.'),'_'),
             '+-','__'),'_')),0),0)"/>
     </xsl:template>
-    
     <xsl:template name="date:date-time">
-        <xsl:param name="utctimestamp"/><!-- UTC -->
-        <xsl:param name="shifttzinminutes"/>
+        <xsl:param name="utctimestampmilliseconds"/><!-- UTC -->
+        <xsl:param name="shifttzinminutes" select="0"/>
         <xsl:param name="is_include_milliseconds" select="true()"/>
-        <xsl:variable name="timestamp" select="$utctimestamp + $shifttzinminutes*60000"/>
+        <xsl:variable name="utctimestampseconds" select="$utctimestampmilliseconds div 1000 + $shifttzinminutes*60"/>
+        <xsl:variable name="s" select="$utctimestampseconds mod 86400"></xsl:variable>
+        <xsl:variable name="h" select="floor($s div 3600)"></xsl:variable>
+        <xsl:variable name="m" select="floor($s div 60 mod 60)"></xsl:variable>
+        <xsl:variable name="seconds" select="floor($s mod 60)"/>
+        <xsl:variable name="ts" select="floor($utctimestampseconds div 86400)"/>
+        <xsl:variable name="x" select="floor(($ts*4+102032) div 146097+15)"></xsl:variable>
+        <xsl:variable name="b" select="floor(($x div -4)+$ts+2442113+$x)"/>
+        <xsl:variable name="c" select="floor(($b*20 - 2442) div 7305)"/>
+        <xsl:variable name="d" select="ceiling(($b) - (365*$c) - ($c div 4))"/>
+        <xsl:variable name="e" select="floor($d*(1000 div 30601))"/>
+        <xsl:variable name="f" select="ceiling($d - ($e*30) - ($e*601 div 1000))"/>
+        
+        <!--xsl:value-of select="concat('utctimestampseconds', $utctimestampseconds,' ts', $ts, ' x', $x, ' b', $b,' c',$c,' d', $d,' e', $e,' f', $f,' s:',$s,'h:',$h,'m:',$m,'seconds', $seconds)"/>
+        <xsl:text>&#x0A;</xsl:text-->
+        
         <xsl:variable name="timezonepart">
             <xsl:choose>
                 <xsl:when test="$shifttzinminutes">
@@ -129,60 +143,32 @@
                 <xsl:otherwise><xsl:value-of select="'Z'"/></xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
-        <xsl:if test="not(format-number($timestamp,0)='NaN')">
-            <xsl:variable name="days"
-                select="$timestamp div (24*3600000)"/>
-            <xsl:variable name="time"
-                select="
-                $timestamp div 1000
-                -floor($days)*24*3600"/>
-            <xsl:variable name="year"
-                select="
-                1970+floor(
-                format-number($days div 365.24,'0.#'))"/>
-            <xsl:variable name="year-offset"
-                select="
-                719528-$year*365
-                -floor($year div 4)
-                +floor($year div 100)
-                -floor($year div 400)
-                +floor($days)"/>
-            <xsl:variable name="month"
-                select="count($date:month/*[$year-offset>=sum(preceding-sibling::*)][last()]/preceding-sibling::*)"/>
-            <xsl:variable name="hours"
-                select="floor($time div 3600)"/>
-            <xsl:variable name="min"
-                select="floor($time div 60-$hours*60)"/>
-            <xsl:variable name="sec"
-                select="floor($time -$hours*3600-$min*60)"/>
-            <xsl:variable name="millisecondspart">
-                <xsl:choose>
-                    <xsl:when test="$is_include_milliseconds">
-                        <xsl:value-of select="'.'"/>
-                        <xsl:value-of select="format-number(
-                            1000*($time
-                            -$hours*3600
-                            -$min*60-$sec),
-                            '000')"/>
-                    </xsl:when>
-                    <xsl:otherwise></xsl:otherwise>
-                </xsl:choose>
-            </xsl:variable>
-            <xsl:value-of select="
-                concat(
-                format-number($year,'0000'),'-',
-                format-number($month+1,'00'),'-',
-                format-number(
-                $year-offset
-                -sum($date:month/*[$month>=position()])
-                +(2>$month and (($year mod 4=0 and
-                $year mod 100!=0) or
-                $year mod 400=0)),
-                '00'),'T',
-                format-number($hours,'00'),':',
-                format-number($min,'00'),':',
-                format-number($sec,'00'),
-                $millisecondspart,$timezonepart)"/>            
+        
+        <xsl:choose><!-- YEAR-MO -->
+            <xsl:when test="$e &lt; 14">
+                <xsl:value-of select="$c - 4716"/>
+                <xsl:value-of select="'-'"/>
+                <xsl:value-of select="$e - 1"/>
+            </xsl:when>
+            <xsl:otherwise>
+                <xsl:value-of select="$c - 4715"/>
+                <xsl:value-of select="'-'"/>
+                <xsl:value-of select="$e - 13"/>
+            </xsl:otherwise>
+        </xsl:choose>
+        <xsl:value-of select="'-'"/>
+        <xsl:value-of select="$f"/>
+        <xsl:value-of select="'T'"/>
+        <xsl:value-of select="concat(
+            format-number($h,'00'),':',
+            format-number($m,'00'),':',
+            format-number($seconds,'00'))
+            "/>
+        <xsl:if test="$is_include_milliseconds">
+            <xsl:value-of select="concat('.',format-number($utctimestampmilliseconds mod 1000,'000'))"/>
         </xsl:if>
+        <xsl:value-of select="$timezonepart"/>        
+        
     </xsl:template>
+
 </xsl:stylesheet>
