@@ -96,5 +96,25 @@
         </xsl:if>
         <!-- test2shift end -->
         
+        <!-- testPadding begin -->
+        <xsl:if test="true()">
+            <xsl:variable name="name" select="'testPadding'"></xsl:variable>
+            <xsl:variable name="expected" select="'2013-06-05T18:46:40+01:00'"/>
+            <xsl:variable name="actual">
+                <xsl:call-template name="date:date-time">
+                    <xsl:with-param name="utctimestampmilliseconds" select="1370454400000"/>
+                    <xsl:with-param name="shifttzinminutes" select="60"></xsl:with-param>
+                    <xsl:with-param name="is_include_milliseconds" select="false()"/>
+                </xsl:call-template>
+            </xsl:variable>
+            
+            <xsl:choose>
+                <xsl:when test="$actual = $expected"><xsl:value-of select="$name"/> passed</xsl:when>
+                <xsl:otherwise><xsl:value-of select="$name"/> not passed, was:<xsl:value-of select="$actual"/> expected: <xsl:value-of select="$expected"/></xsl:otherwise>
+            </xsl:choose>
+            <xsl:text>&#x0A;</xsl:text>
+        </xsl:if>
+        <!-- testPadding end -->
+        
     </xsl:template>
 </xsl:stylesheet>

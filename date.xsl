@@ -148,16 +148,16 @@
             <xsl:when test="$e &lt; 14">
                 <xsl:value-of select="$c - 4716"/>
                 <xsl:value-of select="'-'"/>
-                <xsl:value-of select="$e - 1"/>
+                <xsl:value-of select="format-number($e - 1,'00')"/>
             </xsl:when>
             <xsl:otherwise>
                 <xsl:value-of select="$c - 4715"/>
                 <xsl:value-of select="'-'"/>
-                <xsl:value-of select="$e - 13"/>
+                <xsl:value-of select="format-number($e - 13,'00')"/>
             </xsl:otherwise>
         </xsl:choose>
         <xsl:value-of select="'-'"/>
-        <xsl:value-of select="$f"/>
+        <xsl:value-of select="format-number($f,'00')"/>
         <xsl:value-of select="'T'"/>
         <xsl:value-of select="concat(
             format-number($h,'00'),':',
