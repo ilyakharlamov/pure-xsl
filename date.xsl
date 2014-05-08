@@ -101,6 +101,7 @@
         <xsl:param name="utctimestampmilliseconds"/><!-- UTC -->
         <xsl:param name="shifttzinminutes" select="0"/>
         <xsl:param name="is_include_milliseconds" select="true()"/>
+        <xsl:param name="keepz" select="true()"/>
         <xsl:variable name="utctimestampseconds" select="$utctimestampmilliseconds div 1000 + $shifttzinminutes*60"/>
         <xsl:variable name="s" select="$utctimestampseconds mod 86400"></xsl:variable>
         <xsl:variable name="h" select="floor($s div 3600)"></xsl:variable>
@@ -140,7 +141,7 @@
                     </xsl:variable>
                     <xsl:value-of select="concat($shifttzsign,format-number($shifttzhrsabs, '00'),':',format-number($shifttzminabs, '00'))"/>
                 </xsl:when>
-                <xsl:otherwise><xsl:value-of select="'Z'"/></xsl:otherwise>
+                <xsl:when test="$keepz"><xsl:value-of select="'Z'"/></xsl:when>
             </xsl:choose>
         </xsl:variable>
         
