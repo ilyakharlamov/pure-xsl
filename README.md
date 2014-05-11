@@ -38,7 +38,6 @@ converted back:1365599995640
 </pre>
 
 parseStringAsXML
-
 =========
 Example:
 ```xml
