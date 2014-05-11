@@ -18,7 +18,7 @@
     
     <xsl:template name="unit:testParseContent">
         <xsl:if test="false()">
-            <xsl:call-template name="pxml:parseContent">
+            <xsl:call-template name="pxml:parseStringAsXML">
                 <xsl:with-param name="content"/>
             </xsl:call-template>
             </xsl:if>
@@ -26,37 +26,37 @@
             <xsl:call-template name="unit:assert">
                 <xsl:with-param name="expected">textonly</xsl:with-param>
                 <xsl:with-param name="actual">
-                    <xsl:call-template name="pxml:parseContent">
+                    <xsl:call-template name="pxml:parseStringAsXML">
                         <xsl:with-param name="content">textonly</xsl:with-param>
                     </xsl:call-template>
                 </xsl:with-param>
             </xsl:call-template>
         </xsl:if>
         <xsl:if test="false()">
-            <xsl:call-template name="pxml:parseContent">
-                <xsl:with-param name="content">textwithelement&lt;field/&gt;</xsl:with-param>
+            <xsl:call-template name="pxml:parseStringAsXML">
+                <xsl:with-param name="string">textwithelement&lt;field/&gt;</xsl:with-param>
             </xsl:call-template>
         </xsl:if>
         <xsl:if test="false()">
-            <xsl:call-template name="pxml:parseContent">
-                <xsl:with-param name="content">     &lt;field attr1 = "value1" attr2 = 'value2'&gt;&lt;name/&gt;&lt;/field&gt;&lt;field&gt;te&amp;lt;xt&lt;/field&gt;</xsl:with-param>
+            <xsl:call-template name="pxml:parseStringAsXML">
+                <xsl:with-param name="string">     &lt;field attr1 = "value1" attr2 = 'value2'&gt;&lt;name/&gt;&lt;/field&gt;&lt;field&gt;te&amp;lt;xt&lt;/field&gt;</xsl:with-param>
             </xsl:call-template>
         </xsl:if>
         <xsl:if test="true()">
-            <xsl:call-template name="pxml:parseContent">
-                <xsl:with-param name="content">text&lt;parent&gt;&lt;child1 attr2 = 'value2'&gt;&lt;/child1&gt;&lt;child2&gt;&lt;value1&gt;val1&lt;/value1&gt;&lt;value2&gt;val2&lt;/value2&gt;&lt;value3/&gt;&lt;/child2&gt;&lt;child3 attr='testattrvalue'/&gt;&lt;/parent&gt;&lt;parent2&gt;&lt;/parent2&gt;</xsl:with-param>
+            <xsl:call-template name="pxml:parseStringAsXML">
+                <xsl:with-param name="string">text&lt;parent&gt;&lt;child1 attr2 = 'value2'&gt;&lt;/child1&gt;&lt;child2&gt;&lt;value1&gt;val1&lt;/value1&gt;&lt;value2&gt;val2&lt;/value2&gt;&lt;value3/&gt;&lt;/child2&gt;&lt;child3 attr='testattrvalue'/&gt;&lt;/parent&gt;&lt;parent2&gt;&lt;/parent2&gt;</xsl:with-param>
             </xsl:call-template>
         </xsl:if>
     </xsl:template>
     
-    <xsl:template name="pxml:parseContent">
-        <xsl:param name="content"/>
-        <xsl:call-template name="local:parseContent">
-            <xsl:with-param name="remaining" select="$content"/>
+    <xsl:template name="pxml:parseStringAsXML">
+        <xsl:param name="string"/>
+        <xsl:call-template name="local:parseStringAsXML">
+            <xsl:with-param name="remaining" select="$string"/>
         </xsl:call-template>
     </xsl:template>
     
-    <xsl:template name="local:parseContent">
+    <xsl:template name="local:parseStringAsXML">
         <xsl:param name="remaining"/>
         <xsl:param name="stack"/>
         <xsl:param name="out"/>
@@ -137,7 +137,7 @@
                     </xsl:choose>
                 </xsl:variable>
                 <xsl:message>after inject newout:<xsl:copy-of select="$newout"/>:newout</xsl:message>
-                <xsl:call-template name="local:parseContent">
+                <xsl:call-template name="local:parseStringAsXML">
                     <xsl:with-param name="stack" select="$newstack"/>
                     <xsl:with-param name="out"><xsl:copy-of select="$newout"/></xsl:with-param>
                     <xsl:with-param name="remaining" select="concat($emptyElementNormalization, substring($remaining, string-length($current)+1))"></xsl:with-param>

@@ -49,8 +49,8 @@ Example:
     version="1.0">
     <xsl:import href="https://raw.github.com/ilyakharlamov/pure-xsl/master/parseStringAsXML.xsl"/>
     <xsl:template match="/">
-        <xsl:call-template name="pxml:parseContent">
-            <xsl:with-param name="escaped">  &lt;root&gt;   &lt;field attr1 = "value1" attr2 = 'value2'&gt;&lt;name/&gt;&lt;/field&gt;&lt;field&gt;te&amp;lt;xt&lt;/field&gt; &lt;/root&gt;</xsl:with-param>
+        <xsl:call-template name="pxml:parseStringAsXML">
+            <xsl:with-param name="string">&lt;root&gt;   &lt;field attr1 = "value1" attr2 = 'value2'&gt;&lt;name/&gt;&lt;/field&gt;&lt;field&gt;te&amp;lt;xt&lt;/field&gt; &lt;/root&gt;</xsl:with-param>
         </xsl:call-template>
     </xsl:template>
 </xsl:stylesheet>
